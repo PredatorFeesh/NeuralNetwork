@@ -1,3 +1,6 @@
+#ifndef CREATE_CIFAR_H
+#define CREATE_CIFAR_H
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -21,7 +24,7 @@ namespace Cifar
 
 
 	
-    template <typename dattype=float>
+    template <typename dattype = float>
     class Cifar
     {
 
@@ -56,16 +59,19 @@ namespace Cifar
             // X -> all stacked on top of one another
             // Y -> also stacked on top of one another
 
-            ifstream myfile ("cifar_data/data_batch_"+to_string(num)+".bin",ios::binary);
+            ifstream cifarfile ("cifar_data/data_batch_"+to_string(num)+".bin",ios::binary);
+            
+            if (!cifarfile.good()) { cout << "File is not good!" << endl; exit(1); } // Check file good
+
             cout << endl;
             cout << "Making cifar" << endl;
             for (int w = 0; w < cifarNumImages; w++) 
             {   
                     
-                    y_train.push_back( static_cast<uint8_t>(myfile.get()));     //binaryToDecimal()
+                    y_train.push_back( static_cast<uint8_t>(cifarfile.get()));     //binaryToDecimal()
                     for (unsigned i = 0; i < size; ++i) 
                     {
-                        X_train.push_back( static_cast<dattype>(static_cast<uint8_t>(myfile.get())));  // binaryToDecimal()
+                        X_train.push_back( static_cast<dattype>(static_cast<uint8_t>(cifarfile.get())));  // binaryToDecimal()
                     }
             }
 
@@ -75,63 +81,67 @@ namespace Cifar
 
         }
 	
-	void preprocess(ScaleType scale)
-	{
-        // @param scale: specifies the type of scale to apply
-        // @return none: updates the values in the batches (train and test)
-        preprocessed = true;
-        
-        if( scale == MINMAX )	    
+        void preprocess(ScaleType scale)
         {
-            // const auto [test_min, test_max] = minmax_element( X_test.begin(), X_test.end() );
-            // const auto [train_min, train_max] = minmax_element( X_train.begin(), X_train.end());
-
-            // dattype dtrain = *train_max - *train_min;
-            // dattype dtest = *test_max - *test_min;
-
-            for_each( X_train.begin(), X_train.end(), 
-                [&](dattype& point){ point = (point - 0) / (255-0); } ); // scale train 
+            // @param scale: specifies the type of scale to apply
+            // @return none: updates the values in the batches (train and test)
+            preprocessed = true;
+            cout << "Starting preprocessing..." << endl;
             
-            for_each( X_test.begin(), X_test.end(), 
-                [&](dattype& point){ point = (point - 0) / (255-0); } ); // scale test
-
-        } 
-        else if (scale == STANDARD)
-        {
-
-            // We need to split the data into each own part
-            int start_spot, stop_spot;
-            for (size_t image_number = 0; image_number < num_train; image_number++)
+            if( scale == MINMAX )	    
             {
-                start_spot = image_number*size;
-                stop_spot = (image_number+1)*size-1;
-                double mean_train = std::accumulate(X_train.begin() + start_spot, X_train.begin() + stop_spot, 0.0) / X_train.size();
-                double accum=0.0;
-                for_each(X_train.begin() + start_spot, X_train.begin() + stop_spot, 
-                    [&](const double d) {accum += (d - mean_train) * (d - mean_train); });
-                double stdev_train = sqrt(accum / (size-1)); // Get the standard deviation
+                // const auto [test_min, test_max] = minmax_element( X_test.begin(), X_test.end() );
+                // const auto [train_min, train_max] = minmax_element( X_train.begin(), X_train.end());
 
-                for_each( X_train.begin() + start_spot, X_train.begin() + stop_spot, 
-                    [&](dattype& point){ point = (point - mean_train) / stdev_train; } ); // update train
+                // dattype dtrain = *train_max - *train_min;
+                // dattype dtest = *test_max - *test_min;
+
+                // Max value is 255 and min is 0, so we could just substitute that
+
+                for_each( X_train.begin(), X_train.end(), 
+                    [&](dattype& point){ point = (point - 0) / (255-0); } ); // scale train 
+                
+                for_each( X_test.begin(), X_test.end(), 
+                    [&](dattype& point){ point = (point - 0) / (255-0); } ); // scale test
+
+            } 
+            else if (scale == STANDARD)
+            {
+
+                // We need to split the data into each own part
+                int start_spot, stop_spot;
+                for (size_t image_number = 0; image_number < num_train; image_number++)
+                {
+                    start_spot = image_number*size;
+                    stop_spot = (image_number+1)*size-1;
+                    double mean_train = std::accumulate(X_train.begin() + start_spot, X_train.begin() + stop_spot, 0.0) / X_train.size();
+                    double accum=0.0;
+                    for_each(X_train.begin() + start_spot, X_train.begin() + stop_spot, 
+                        [&](const double d) {accum += (d - mean_train) * (d - mean_train); });
+                    double stdev_train = sqrt(accum / (size-1)); // Get the standard deviation
+
+                    for_each( X_train.begin() + start_spot, X_train.begin() + stop_spot, 
+                        [&](dattype& point){ point = (point - mean_train) / stdev_train; } ); // update train
+
+                }
+
+                for (size_t image_number = 0; image_number < num_test; image_number++)
+                {
+                    start_spot = num_train*size;
+                    stop_spot = (num_train+1)*size-1;
+                    double mean_test = std::accumulate(X_test.begin() + start_spot, X_test.begin() + stop_spot, 0.0) / X_test.size();
+                    double accum=0.0;
+                    for_each(X_test.begin() + start_spot, X_test.begin() + stop_spot, 
+                        [&](const double d) {accum += (d - mean_test) * (d - mean_test); });
+                    double stdev_test = sqrt(accum / (size-1)); // Get the standard deviation
+
+                    for_each( X_test.begin() + start_spot, X_test.begin() + stop_spot, 
+                        [&](dattype& point){ point = (point - mean_test) / stdev_test; } ); // update test
+                }
 
             }
-
-            for (size_t image_number = 0; image_number < num_test; image_number++)
-            {
-                start_spot = num_train*size;
-                stop_spot = (num_train+1)*size-1;
-                double mean_test = std::accumulate(X_test.begin() + start_spot, X_test.begin() + stop_spot, 0.0) / X_test.size();
-                double accum=0.0;
-                for_each(X_test.begin() + start_spot, X_test.begin() + stop_spot, 
-                    [&](const double d) {accum += (d - mean_test) * (d - mean_test); });
-                double stdev_test = sqrt(accum / (size-1)); // Get the standard deviation
-
-                for_each( X_test.begin() + start_spot, X_test.begin() + stop_spot, 
-                    [&](dattype& point){ point = (point - mean_test) / stdev_test; } ); // update test
-            }
-
+            cout << "Finished preprocessing!" << endl;
         }
-	}
 
         void print(vector<dattype> vec)
         {
@@ -208,8 +218,6 @@ namespace Cifar
 
     };
 
-
-
 }
 
 
@@ -217,3 +225,4 @@ namespace Cifar
 
 
 
+#endif
