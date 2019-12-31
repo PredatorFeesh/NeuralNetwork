@@ -14,7 +14,7 @@ NeuralNetwork::NeuralNetwork(vector<size_t> top)
     // We will have topology.size()-1 layers
     for ( unsigned i = 0; i < net_size; i++ )
     {
-        b.push_back( Matrix(1, top[i+1]) );
+        b.push_back( Matrix(1, top[i]) );
         w.push_back( Matrix(top[i], top[i+1]) );
     }
 

@@ -2,7 +2,6 @@
 #include "headers/NeuralNetwork.h"
 #include "headers/Matrix.h"
 
-
 int main()
 {
     NeuralNetwork net(vector<size_t>{5,2,5});

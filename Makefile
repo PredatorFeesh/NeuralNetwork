@@ -1,5 +1,5 @@
 CXX=g++
-FLAGS=-std=c++17 
+FLAGS=-std=c++17
 DEBUG=-g
 
 MAIN=main.cpp

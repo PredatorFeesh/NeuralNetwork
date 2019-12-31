@@ -37,7 +37,11 @@ Matrix Matrix::apply( std::function<float (float)> activation )
 
 Matrix Matrix::operator+(Matrix m)
 {
-    if ( m.rows != cols || m.cols != cols ){ cout << "Parameters don't match! Can't add!"; exit(1); }
+    cout << "Adding" << endl;
+    cout << rows << " " << cols << endl;
+    cout << m.rows << " " << m.cols << endl;
+    cout << "Starting to add" << endl;
+    if ( m.rows != rows || m.cols != cols ){ cout << "Parameters don't match! Can't add!"; exit(1); }
 
     Matrix output(rows, cols);
 
