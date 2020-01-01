@@ -11,6 +11,12 @@ enum Activation
     SIGMOID
 };
 
+enum Cost
+{
+    CrossEntropy, // @TODO First implemented
+    KLDiv // @TODO (Maybe implement)
+};
+
 class NeuralNetwork
 {
 
