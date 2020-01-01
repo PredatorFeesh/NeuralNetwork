@@ -38,8 +38,10 @@ class NeuralNetwork
 
         NeuralNetwork(vector<size_t> topology);
 
-        void forward(Matrix);;
-        void forward(vector<float>);
+        Matrix get_output(){ return a[net_size]; };
+
+        void forward(Matrix X); // input
+        void forward(vector<float> X); // input
     
 
 

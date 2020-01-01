@@ -4,12 +4,13 @@
 
 int main()
 {
-    NeuralNetwork net(vector<size_t>{5,2,5});
-    
-    Cifar::Cifar<float> data(1);
+    Cifar::Cifar data(1);
 
-    net.forward(vector<float>{1,3,2,1,3});
-    net.a[2].print(1,5);
+    NeuralNetwork net(vector<size_t>{data.size,500,10});
+    cout << "Starting to forward propogate" << endl;
+
+    net.forward(data.get_random_train()[0]);
+    net.get_output().print( 1, 10 );
 
     cout << "done program" << endl;
     return 0;

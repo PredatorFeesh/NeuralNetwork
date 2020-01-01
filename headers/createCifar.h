@@ -22,30 +22,25 @@ namespace Cifar
         STANDARD
     };
 
-
-	
-    template <typename dattype = float>
     class Cifar
     {
 
     public:
 
-        typedef dattype datatype; 
-
         double preprocessed=false;
 
-        vector<dattype> y_train;
-        vector<dattype> X_train;
+        vector<float> y_train;
+        vector<float> X_train;
 
-        vector<dattype> y_test;
-        vector<dattype> X_test;
+        vector<float> y_test;
+        vector<float> X_test;
 
         unsigned cifarNumImages = 1000;
 
         int num_train = cifarNumImages;
         int num_test = 0;
 
-        int size=32*32*3;
+        unsigned long size = 32*32*3;
 
         Cifar(int num)
         {
@@ -71,7 +66,7 @@ namespace Cifar
                     y_train.push_back( static_cast<uint8_t>(cifarfile.get()));     //binaryToDecimal()
                     for (unsigned i = 0; i < size; ++i) 
                     {
-                        X_train.push_back( static_cast<dattype>(static_cast<uint8_t>(cifarfile.get())));  // binaryToDecimal()
+                        X_train.push_back( static_cast<float>(static_cast<uint8_t>(cifarfile.get())));  // binaryToDecimal()
                     }
             }
 
@@ -93,16 +88,16 @@ namespace Cifar
                 // const auto [test_min, test_max] = minmax_element( X_test.begin(), X_test.end() );
                 // const auto [train_min, train_max] = minmax_element( X_train.begin(), X_train.end());
 
-                // dattype dtrain = *train_max - *train_min;
-                // dattype dtest = *test_max - *test_min;
+                // float dtrain = *train_max - *train_min;
+                // float dtest = *test_max - *test_min;
 
                 // Max value is 255 and min is 0, so we could just substitute that
 
                 for_each( X_train.begin(), X_train.end(), 
-                    [&](dattype& point){ point = (point - 0) / (255-0); } ); // scale train 
+                    [&](float& point){ point = (point - 0) / (255-0); } ); // scale train 
                 
                 for_each( X_test.begin(), X_test.end(), 
-                    [&](dattype& point){ point = (point - 0) / (255-0); } ); // scale test
+                    [&](float& point){ point = (point - 0) / (255-0); } ); // scale test
 
             } 
             else if (scale == STANDARD)
@@ -121,7 +116,7 @@ namespace Cifar
                     double stdev_train = sqrt(accum / (size-1)); // Get the standard deviation
 
                     for_each( X_train.begin() + start_spot, X_train.begin() + stop_spot, 
-                        [&](dattype& point){ point = (point - mean_train) / stdev_train; } ); // update train
+                        [&](float& point){ point = (point - mean_train) / stdev_train; } ); // update train
 
                 }
 
@@ -136,24 +131,24 @@ namespace Cifar
                     double stdev_test = sqrt(accum / (size-1)); // Get the standard deviation
 
                     for_each( X_test.begin() + start_spot, X_test.begin() + stop_spot, 
-                        [&](dattype& point){ point = (point - mean_test) / stdev_test; } ); // update test
+                        [&](float& point){ point = (point - mean_test) / stdev_test; } ); // update test
                 }
 
             }
             cout << "Finished preprocessing!" << endl;
         }
 
-        void print(vector<dattype> vec)
+        void print(vector<float> vec)
         {
-            for( dattype val : vec )
+            for( float val : vec )
                 cout << val << " ";
             cout << endl;
         } 
 
 
-        vector<dattype> getonehot(int label, size_t max_labels)
+        vector<float> getonehot(int label, size_t max_labels)
         {
-            vector<dattype> onehot(max_labels);
+            vector<float> onehot(max_labels);
 
             for ( int i = 0 ; i < max_labels ; i++ )
                 if (label == i)
@@ -164,28 +159,28 @@ namespace Cifar
             return onehot;
         }
 
-        vector<dattype> get_train_onehot(int image_number)
+        vector<float> get_train_onehot(int image_number)
         {
             return getonehot(y_train[image_number], 10);
         } 
 
-        vector<dattype> get_test_onehot(int image_number)
+        vector<float> get_test_onehot(int image_number)
         {
             return getonehot(y_test[image_number], 10);
         } 
 
-        vector<dattype> get_train_data(int image_number)
+        vector<float> get_train_data(int image_number)
         {
-            vector<dattype> data(size);
+            vector<float> data(size);
             int start_spot = image_number*size;
             for(int i = start_spot; i < (image_number+1)*size; i++)
                 data[i - start_spot ] = X_train[i];
             return data;
         }
         
-        vector<dattype> get_test_data(int image_number)
+        vector<float> get_test_data(int image_number)
         {
-            vector<dattype> data(size);
+            vector<float> data(size);
             int start_spot = image_number*size;
             for(int i = start_spot; i < (image_number+1)*size; i++)
                 data[i - start_spot ] = X_train[i];
@@ -194,26 +189,26 @@ namespace Cifar
 
 
 
-        vector<vector<dattype>> get_random_train(int type = 1)
+        vector<vector<float>> get_random_train(int type = 1)
         { // 0 = regular; 1 = onehot
 
             int randindx = rand() % (cifarNumImages);
 
             if ( type == 1 )
-                return vector<vector<dattype>> { get_train_data(randindx), get_train_onehot(randindx) };
+                return vector<vector<float>> { get_train_data(randindx), get_train_onehot(randindx) };
             else if ( type == 0 )
-                return vector<vector<dattype>> { get_train_data(randindx), vector<dattype>{y_train[randindx]} };
+                return vector<vector<float>> { get_train_data(randindx), vector<float>{y_train[randindx]} };
         }
 
-        vector<vector<dattype>> get_random_test(int type = 1)
+        vector<vector<float>> get_random_test(int type = 1)
         { // 0 = regular; 1 = onehot
 
             int randindx = rand() % (cifarNumImages);
 
             if ( type == 1 )
-                return vector<vector<dattype>> { get_test_data(randindx), get_test_onehot(randindx) };
+                return vector<vector<float>> { get_test_data(randindx), get_test_onehot(randindx) };
             else if ( type == 0 )
-                return vector<vector<dattype>> { get_test_data(randindx), vector<dattype>{y_train[randindx]} };
+                return vector<vector<float>> { get_test_data(randindx), vector<float>{y_train[randindx]} };
         }
 
     };

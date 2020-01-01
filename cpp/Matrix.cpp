@@ -59,6 +59,8 @@ vector<float> Matrix::operator[](size_t i)
 
 Matrix Matrix::operator*(Matrix m)
 {
+    // cout << rows << " " << cols << endl;
+    // cout << m.rows << " " << m.cols << endl;
     if ( cols != m.rows ){ cout << "Rows != Col! Can't multiply!"; exit(1); }
 
     Matrix output(rows, m.cols);
