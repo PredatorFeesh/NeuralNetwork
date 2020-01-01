@@ -31,9 +31,9 @@ NeuralNetwork::NeuralNetwork(vector<size_t> top)
 void NeuralNetwork::forward(Matrix X)
 {
     z[0], a[0] = X, X;
-    for(unsigned i = 1; i < net_size; i++)
+    for(unsigned i = 1; i <= net_size; i++)
     {
-        z[i] = (a[i-1]*w[i-1]) + b[i];
+        z[i] = a[i-1]*w[i-1]; // + b[i];
         a[i] = z[i].apply(maths::sigmoid);
     }
 }

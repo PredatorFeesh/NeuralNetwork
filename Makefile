@@ -3,7 +3,9 @@ FLAGS=-std=c++17
 DEBUG=-g
 
 MAIN=main.cpp
-OUTPUT=-o out
+OUTNAME=a
+
+OUTPUT=-o $(OUTNAME)
 
 CPPDIR=cpp
 
@@ -12,3 +14,6 @@ install: $(MAIN)
 
 debug: $(MAIN)
 	$(CXX) $(MAIN) $(CPPDIR)/*.cpp $(FLAGS) $(OUTPUT) $(DEBUG)
+
+run: $(OUTNAME)
+	./$(OUTNAME)

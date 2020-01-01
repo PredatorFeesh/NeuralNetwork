@@ -40,16 +40,23 @@ Matrix Matrix::operator+(Matrix m)
     cout << "Adding" << endl;
     cout << rows << " " << cols << endl;
     cout << m.rows << " " << m.cols << endl;
-    cout << "Starting to add" << endl;
     if ( m.rows != rows || m.cols != cols ){ cout << "Parameters don't match! Can't add!"; exit(1); }
 
-    Matrix output(rows, cols);
+    Matrix out(rows, cols);
 
-    for( unsigned i = 0; i < rows; i++ )
-        for( unsigned j = 0; j < cols; j++)
-            output[i][j] = m_matrix[i][j] + m.m_matrix[i][j];
-    
-    return output;
+    int i, j;
+
+    for( i = 0; i < rows; i++ )
+    {
+        // for( j = 0; j < cols; j++)
+        // {
+        //     output.m_matrix[i][j] = m_matrix[i][j] + m.m_matrix[i][j];
+        //     cout << output[i][j];
+        // }
+        std::transform( m_matrix[i].begin(), m_matrix[i].end(), m.m_matrix[i].begin(), out.m_matrix[i].begin(), std::plus<float>() );
+    }
+    cout << "Done adding!" << endl;
+    return out;
 }
 
 vector<float> Matrix::operator[](size_t i)
@@ -59,8 +66,9 @@ vector<float> Matrix::operator[](size_t i)
 
 Matrix Matrix::operator*(Matrix m)
 {
-    // cout << rows << " " << cols << endl;
-    // cout << m.rows << " " << m.cols << endl;
+    cout << "Multiplying" << endl;
+    cout << rows << " " << cols << endl;
+    cout << m.rows << " " << m.cols << endl;
     if ( cols != m.rows ){ cout << "Rows != Col! Can't multiply!"; exit(1); }
 
     Matrix output(rows, m.cols);
