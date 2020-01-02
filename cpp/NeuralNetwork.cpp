@@ -87,18 +87,30 @@ void NeuralNetwork::forward(vector<float> X)
     forward(x);
 }
 
-void computeCost(Cost type)
+void NeuralNetwork::computeCost(Matrix y)
 {
-    switch (type)
+    cost = 0;
+    Matrix yhat = get_output();
+    if(costfunc == CrossEntropy)
     {
-    case CrossEntropy:
-        
-
-
-        break;
-    
-    default:
-        break;
+        for(unsigned i=0; i < y[0].size(); i++)
+        {
+            cost += ( y[0][i] * log2( yhat[0][i] ) );
+        }
+        cost *= -1;
     }
+    cout << "Cost: " << cost << endl;
+}
+
+void NeuralNetwork::computeCost(vector<float> y)
+{
+    Matrix m(1, y.size());
+    m[0] = y;
+    computeCost(m);
+}
+
+void NeuralNetwork::updateWeights(Matrix y)
+{
+    Matrix yhat = get_output();
 }
 

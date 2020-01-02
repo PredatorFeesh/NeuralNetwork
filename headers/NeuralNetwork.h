@@ -49,7 +49,7 @@ class NeuralNetwork
         vector<Matrix> a;
 
         // This is the current cost of our system (after a forward pass)
-        float cost = 0;
+        float cost = 0.0f;
 
 
         // This is the topolgy of our neural network (how layers are constructed)
@@ -63,8 +63,11 @@ class NeuralNetwork
         void forward(Matrix X); // input
         void forward(vector<float> X); // input
     
-        void computeCost(); // This assumes we already forward propogated - calculated based on that
-        float getCost(){ return cost; };
+        void computeCost(Matrix y); // This assumes we already forward propogated - calculated based on that
+        void computeCost(vector<float> y);
+        float getCost(){ return cost; }
+
+        void updateWeights();
 
 
 

@@ -8,10 +8,13 @@ int main()
     data.preprocess(Cifar::MINMAX);
 
     NeuralNetwork net(vector<size_t>{data.size,500,10}, SIGMOID, SOFTMAX, CrossEntropy);
-    
+
     cout << "Starting to forward propogate" << endl;
 
-    net.forward(data.get_random_train()[0]);
+    auto dat = data.get_random_train();
+
+    net.forward(dat[0]);
+    net.computeCost(dat[1]);
 
     net.get_output().print( 1, 10 );
 
