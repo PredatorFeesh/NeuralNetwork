@@ -36,9 +36,15 @@ class NeuralNetwork
         // Can understand like this:
         // w[i][j][k] is the weight in the ith layer connecting node k in i-i to j in layer i.
         vector<Matrix> w; 
+
+        // This is the change we will do to w
+        vector<Matrix> nab_w;
         
         // This is the bias. b[i] given bias of layer [i]
         vector<Matrix> b;
+
+        // This is the change to be applied to the bias vector
+        vector<Matrix> nab_b;
 
         // This is the layer before activation is applied
         // z[l][i][k] is the lth layer val i from k in layer l-1
@@ -67,7 +73,7 @@ class NeuralNetwork
         void computeCost(vector<float> y);
         float getCost(){ return cost; }
 
-        void updateWeights();
+        void updateWeights(Matrix y);
 
 
 

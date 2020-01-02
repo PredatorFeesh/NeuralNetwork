@@ -13,7 +13,9 @@ NeuralNetwork::NeuralNetwork(vector<size_t> top, Activation activfunc, Final fin
     net_size = top.size()-1;
 
     w.reserve(net_size);
+    nab_w.reserve(net_size);
     b.reserve(net_size);
+    nab_b.reserve(net_size);
 
     z.reserve(net_size+1);
     a.reserve(net_size+1);
@@ -23,7 +25,10 @@ NeuralNetwork::NeuralNetwork(vector<size_t> top, Activation activfunc, Final fin
     for ( unsigned i = 0; i < net_size; i++ )
     {
         b.push_back( Matrix(1, top[i]) );
+        nab_b.push_back( Matrix(1, top[i]) );
         w.push_back( Matrix(top[i], top[i+1]) );
+        nab_w.push_back( Matrix(top[i], top[i+1]) );
+        
     }
 
     // Now we do the bias, z, and a as random just as initialize
@@ -110,7 +115,7 @@ void NeuralNetwork::computeCost(vector<float> y)
 }
 
 void NeuralNetwork::updateWeights(Matrix y)
-{
+{//@TODOs
     Matrix yhat = get_output();
 }
 
