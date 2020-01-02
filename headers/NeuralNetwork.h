@@ -11,6 +11,11 @@ enum Activation
     SIGMOID
 };
 
+enum Final
+{
+    SOFTMAX
+};
+
 enum Cost
 {
     CrossEntropy, // @TODO First implemented

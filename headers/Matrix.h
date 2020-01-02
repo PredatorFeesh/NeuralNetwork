@@ -19,6 +19,7 @@ class Matrix
     // public:
         Matrix(int rows, int cols) : rows(rows), cols(cols)
         {
+            
             for( unsigned i=0; i < rows; i++ )
             {
                 vector<float> temp(cols);
