@@ -37,6 +37,7 @@ class Matrix
         vector<float> operator[](size_t i);
         Matrix operator+(Matrix m);
         Matrix operator*(Matrix m);
+        void operator+=(Matrix m);
 
 };
 

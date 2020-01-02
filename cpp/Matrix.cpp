@@ -44,7 +44,7 @@ Matrix Matrix::operator+(Matrix m)
 
     Matrix out(rows, cols);
 
-    int i, j;
+    int i = 0;
 
     for( i = 0; i < rows; i++ )
     {
@@ -56,7 +56,8 @@ Matrix Matrix::operator+(Matrix m)
         std::transform( m_matrix[i].begin(), m_matrix[i].end(), m.m_matrix[i].begin(), out.m_matrix[i].begin(), std::plus<float>() );
     }
     cout << "Done adding!" << endl;
-    return out;
+    
+    return out; // We get an error on return? Why?
 }
 
 vector<float> Matrix::operator[](size_t i)
@@ -96,4 +97,9 @@ Matrix Matrix::operator*(Matrix m)
 
     return output;
 
+}
+
+void Matrix::operator+=(Matrix m)
+{
+    *this = *this + m;
 }
