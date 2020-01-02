@@ -13,7 +13,8 @@ enum Activation
 
 enum Final
 {
-    SOFTMAX
+    SOFTMAX,
+    SIGMOIDAL
 };
 
 enum Cost
@@ -26,6 +27,11 @@ class NeuralNetwork
 {
 
     public:
+
+        Activation activfunc;
+        Final finalfunc;
+        Cost costfunc;
+
         // This holds all the matricies of weights.
         // Can understand like this:
         // w[i][j][k] is the weight in the ith layer connecting node k in i-i to j in layer i.
@@ -42,18 +48,23 @@ class NeuralNetwork
         // a[l][i][k] is the lth layer val i from k in layer l-1
         vector<Matrix> a;
 
+        // This is the current cost of our system (after a forward pass)
+        float cost = 0;
+
 
         // This is the topolgy of our neural network (how layers are constructed)
         vector<size_t> top;
         size_t net_size;
 
-        NeuralNetwork(vector<size_t> topology);
+        NeuralNetwork(vector<size_t> topology, Activation activfunc, Final finalfunc, Cost costfunc);
 
         Matrix get_output(){ return a[net_size]; };
 
         void forward(Matrix X); // input
         void forward(vector<float> X); // input
     
+        void computeCost(); // This assumes we already forward propogated - calculated based on that
+        float getCost(){ return cost; };
 
 
 

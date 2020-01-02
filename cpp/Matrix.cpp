@@ -1,9 +1,11 @@
 #include "../headers/Matrix.h"
 #include <iostream>
+#include <algorithm>
 
 using std::vector;
 using std::cout;
 using std::endl;
+using std::transform;
 
 void Matrix::print(int rows, int cols)
 {
@@ -20,7 +22,7 @@ Matrix Matrix::tranpose()
     Matrix output(cols, rows);
     for( unsigned i = 0; i < rows; i++ )
         for( unsigned j = 0; j < cols; j++ )
-            output[j][i] = m_matrix[i][j];
+            output.m_matrix[j][i] = m_matrix[i][j];
     return output;
 }
 
@@ -29,11 +31,21 @@ Matrix Matrix::apply( std::function<float (float)> activation )
     Matrix output(rows, cols);
     for( unsigned i = 0; i < rows; i++ )
         for( unsigned j = 0; j < cols; j++ )
-            output[i][j] = activation(m_matrix[i][j]);
+            output[i][j] = activation( m_matrix[i][j] );
     return output;
 }
 
+Matrix Matrix::operator/(float a)
+{
+    Matrix out(rows, cols);
 
+    for(unsigned i=0; i<rows; i++)
+        for(unsigned j=0; j<cols; j++)
+            out.m_matrix[i][j] = m_matrix[i][j]/a;
+    
+    return out;
+
+}
 
 Matrix Matrix::operator+(Matrix m)
 {
@@ -60,10 +72,6 @@ Matrix Matrix::operator+(Matrix m)
     return out; // We get an error on return? Why?
 }
 
-vector<float> Matrix::operator[](size_t i)
-{
-    return m_matrix[i];
-}
 
 Matrix Matrix::operator*(Matrix m)
 {

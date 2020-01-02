@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <functional>
-
+#include <random>
 
 using std::vector;
 
@@ -20,10 +20,14 @@ class Matrix
         Matrix(int rows, int cols) : rows(rows), cols(cols)
         {
             m_matrix.reserve(rows);
+
+            std::default_random_engine generator;
+            std::uniform_real_distribution<double> distribution(0.0,0.001);
+
             for( unsigned i=0; i < rows; i++ )
             {
                 vector<float> temp(cols);
-                generate(temp.begin(), temp.end(), [](){return static_cast <float> (rand()) / static_cast <float> (RAND_MAX) ;}); // random values
+                generate(temp.begin(), temp.end(), [&](){return distribution(generator) ;}); // random values
                 m_matrix.push_back(temp);
             }
         }
@@ -33,10 +37,14 @@ class Matrix
         Matrix tranpose();
 
         Matrix apply( std::function<float (float)> activation  );
+        Matrix apply( std::function<float (float, float)> activation, float param );
 
-        vector<float> operator[](size_t i);
+        vector<float> operator [](size_t i) const {return m_matrix[i];}
+        vector<float> & operator [](size_t i) {return m_matrix[i];}
+
         Matrix operator+(Matrix m);
         Matrix operator*(Matrix m);
+        Matrix operator/(float a);
         void operator+=(Matrix m);
 
 };
