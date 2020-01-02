@@ -5,7 +5,7 @@
 int main()
 {
     Cifar::Cifar data(1);
-    data.preprocess(Cifar::MINMAX);
+    data.preprocess(Cifar::STANDARD);
 
     NeuralNetwork net(vector<size_t>{data.size,500,10}, SIGMOID, SOFTMAX, CrossEntropy);
 
