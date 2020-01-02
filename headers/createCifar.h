@@ -118,15 +118,13 @@ namespace Cifar
                     for_each( X_train.begin() + start_spot, X_train.begin() + stop_spot, 
                         [&](float& point){ point = (point - mean_train) / stdev_train; } ); // update train
 
-                        cout << "Mean: " << mean_train << "; STD: " << stdev_train << endl;
-
                 }
 
                 for (size_t image_number = 0; image_number < num_test; image_number++)
                 {
                     start_spot = num_train*size;
                     stop_spot = (num_train+1)*size-1;
-                    double mean_test = std::accumulate(X_test.begin() + start_spot, X_test.begin() + stop_spot, 0.0) / X_test.size();
+                    double mean_test = std::accumulate(X_test.begin() + start_spot, X_test.begin() + stop_spot, 0.0) / (stop_spot - start_spot);
                     double accum=0.0;
                     for_each(X_test.begin() + start_spot, X_test.begin() + stop_spot, 
                         [&](const double d) {accum += (d - mean_test) * (d - mean_test); });
