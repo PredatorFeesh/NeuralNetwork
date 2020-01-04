@@ -7,6 +7,30 @@ using std::cout;
 using std::endl;
 using std::transform;
 
+void Matrix::initZero()
+{
+    // Done by default so pass
+}
+
+void Matrix::initLowRandoms(float low, float top)
+{
+    std::default_random_engine gen;
+    std::uniform_real_distribution<float> dist(low, top);
+
+
+    for( unsigned i=0; i < rows; i++ )
+    {
+        generate(m_matrix[i].begin(), m_matrix[i].end(), [&](){return dist(gen) ;}); // random values
+    }
+
+}
+
+void Matrix::initXavier(float n_i1, float n_i2) // n_i1 is layer i, n_i2 is layer i+1
+{
+    float sqrt6 = sqrt(6);
+    initLowRandoms( - (sqrt6 / ( n_i1 + n_i2 ) ) , (sqrt6 / ( n_i1 + n_i2 ) ) );
+}
+
 void Matrix::print(int rows, int cols)
 {
     for( unsigned i = 0; i < rows; i++ )

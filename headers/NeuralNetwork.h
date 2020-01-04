@@ -36,6 +36,7 @@ class NeuralNetwork
 
     public:
 
+        WeightInitMethod initmet;
         Activation activfunc;
         Final finalfunc;
         Cost costfunc;

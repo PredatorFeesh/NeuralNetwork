@@ -6,12 +6,15 @@
 #include <stdlib.h>
 #include <functional>
 #include <random>
+#include <iostream>
 
 using std::vector;
+using std::cout;
+using std::endl;
 
 enum MatrixInit
 {
-    
+
 };
 
 class Matrix
@@ -26,16 +29,6 @@ class Matrix
         {
             m_matrix.reserve(rows);
 
-            // std::default_random_engine generator;
-            // std::uniform_real_distribution<double> distribution(0.0,0.001);
-
-            // for( unsigned i=0; i < rows; i++ )
-            // {
-            //     vector<float> temp(cols);
-            //     generate(temp.begin(), temp.end(), [&](){return distribution(generator) ;}); // random values
-            //     m_matrix.push_back(temp);
-            // }
-
             for( unsigned i=0; i < rows; i++ )
             {
                 vector<float> temp(cols, 0.0f);
@@ -43,6 +36,11 @@ class Matrix
             }
 
         }
+
+        void initLowRandoms(float bot = -0.01f, float top = 0.01f );
+        void initZero();
+        void initXavier(float n_i1, float n_i2);
+        void initKaming(){cout << "NOT IMPLEMENTED YET! KAIMING!" << endl; exit(1); };
 
         void print(int rows, int cols);
 

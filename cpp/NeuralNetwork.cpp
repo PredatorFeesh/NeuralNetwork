@@ -7,7 +7,7 @@ using std::endl;
 using std::exp;
 
 NeuralNetwork::NeuralNetwork(vector<size_t> top, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc)
-: activfunc(activfunc), finalfunc(finalfunc), costfunc(costfunc)
+: initmet(initmet), activfunc(activfunc), finalfunc(finalfunc), costfunc(costfunc)
 {
     top = top;
     net_size = top.size()-1;
@@ -27,6 +27,17 @@ NeuralNetwork::NeuralNetwork(vector<size_t> top, WeightInitMethod initmet, Activ
         b.push_back( Matrix(1, top[i]) );
         nab_b.push_back( Matrix(1, top[i]) );
         w.push_back( Matrix(top[i], top[i+1]) );
+
+        // InstantiateWeights
+        switch(initmet)
+        {
+            case Zero: w[i].initZero(); break;
+            case LowRandoms: w[i].initLowRandoms(); break;
+            case Xavier: w[i].initXavier(top[i], top[i+1]); break;
+            case Kaiming: w[i].initKaming(); break;
+        }
+
+
         nab_w.push_back( Matrix(top[i], top[i+1]) );
         
     }
