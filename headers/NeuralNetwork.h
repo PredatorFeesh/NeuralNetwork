@@ -20,7 +20,7 @@ enum Final
 enum Cost
 {
     CrossEntropy, // @TODO First implemented
-    KLDiv // @TODO (Maybe implement)
+    KLDIV // @TODO (Maybe implement)
 };
 
 enum WeightInitMethod
