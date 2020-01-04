@@ -6,10 +6,10 @@ using std::cout;
 using std::endl;
 using std::exp;
 
-NeuralNetwork::NeuralNetwork(vector<size_t> top, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc)
+NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc)
 : initmet(initmet), activfunc(activfunc), finalfunc(finalfunc), costfunc(costfunc)
 {
-    top = top;
+    top = topology;
     net_size = top.size()-1;
 
     w.reserve(net_size);
@@ -48,6 +48,58 @@ NeuralNetwork::NeuralNetwork(vector<size_t> top, WeightInitMethod initmet, Activ
         z.push_back( Matrix( 1 , layer) );
         a.push_back( Matrix( 1 , layer ) );
     }
+
+}
+
+NeuralNetwork::NeuralNetwork(string fromfile)
+{
+
+}
+
+void NeuralNetwork::saveNetwork(string tofile)
+{
+    fstream file;
+    string line, word;
+
+    file.open(tofile, ios::out);
+
+    if( file.is_open() )
+    {
+        // init params
+        file << "initmeet " << initmet << endl;
+        file << "activfunc " << activfunc << endl;
+        file << "finalfunc " << finalfunc << endl;
+        file << "costfunc " << costfunc << endl;
+
+        // topology
+        file << "topology ";
+        for(unsigned i=0; i<top.size(); i++)
+            file << top[i] << " ";
+        file << endl;
+
+        // save weights
+        for(unsigned i=0; i<net_size; i++)
+        {
+            /// Saved as: weight layer rows cols w[1][1] w[1][2] ... w[1][cols] w[2][1] ...
+            file << "weight " << i << " " << w[i].rows << " " << w[i].cols << " ";
+            for(unsigned j=0; j<w[i].rows; j++)
+                for(unsigned k=0; k<w[i].cols; k++)
+                    file << w[i][j][k] << " ";
+            file << endl;
+        }
+
+        // save bias
+        for(unsigned i=0; i<net_size; i++)
+        {
+            file << "bias " << i << " " <<b[i].rows << " " << b[i].cols;
+            for(unsigned j=0; j<b[i].rows; j++)
+                for(unsigned k=0; k<b[i].cols; k++)
+                    file << b[i][j][k] << " ";
+            file << endl;
+        }
+    } 
+
+    file.close();
 
 }
 

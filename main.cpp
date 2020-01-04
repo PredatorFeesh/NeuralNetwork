@@ -7,7 +7,7 @@ int main()
     Cifar::Cifar data(1);
     data.preprocess(Cifar::STANDARD);
 
-    NeuralNetwork net(vector<size_t>{data.size,500,10}, LowRandoms, SIGMOID, SOFTMAX, CrossEntropy);
+    NeuralNetwork net(vector<size_t>{data.size,500,10}, Xavier, SIGMOID, SOFTMAX, CrossEntropy);
 
     cout << "Starting to forward propogate" << endl;
 
@@ -17,6 +17,8 @@ int main()
     net.computeCost(dat[1]);
 
     net.get_output().print( 1, 10 );
+
+    net.saveNetwork("network.txt");
 
     cout << "done program" << endl;
 

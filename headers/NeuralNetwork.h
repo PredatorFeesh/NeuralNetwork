@@ -3,6 +3,9 @@
 
 #include "../headers/Matrix.h"
 #include "../headers/mathHelper.h"
+#include <string>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -72,6 +75,9 @@ class NeuralNetwork
         size_t net_size;
 
         NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc);
+        
+        NeuralNetwork(string fromfile);
+        void saveNetwork(string tofile);
 
         Matrix get_output(){ return a[net_size]; };
 
