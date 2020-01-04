@@ -23,6 +23,14 @@ enum Cost
     KLDiv // @TODO (Maybe implement)
 };
 
+enum WeightInitMethod
+{
+    LowRandoms, // +- 0.01
+    Zero, // 0 for all
+    Xavier,// +- sqrt(6) / sqrt(n_{i} + n_{i+1} ) where n is number of nodes in layer i
+    Kaiming // @TODO: GOOD FOR DEEPER NETWORKS:  
+};
+
 class NeuralNetwork
 {
 
@@ -62,7 +70,7 @@ class NeuralNetwork
         vector<size_t> top;
         size_t net_size;
 
-        NeuralNetwork(vector<size_t> topology, Activation activfunc, Final finalfunc, Cost costfunc);
+        NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc);
 
         Matrix get_output(){ return a[net_size]; };
 

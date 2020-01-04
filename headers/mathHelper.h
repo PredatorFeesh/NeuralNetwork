@@ -21,6 +21,11 @@ namespace maths
         return ( (exp(-x))/( ( 1.0f + exp(-x) ) * (1.0f + exp(-x)) )  );
     }
 
+    inline float relu(float x)
+    {
+        return (x <= 0) ? 0 : x;
+    }
+
     inline float expsum(vector<float> x)
     { 
         // @TODO: TEST

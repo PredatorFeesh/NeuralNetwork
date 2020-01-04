@@ -6,7 +6,7 @@ using std::cout;
 using std::endl;
 using std::exp;
 
-NeuralNetwork::NeuralNetwork(vector<size_t> top, Activation activfunc, Final finalfunc, Cost costfunc)
+NeuralNetwork::NeuralNetwork(vector<size_t> top, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc)
 : activfunc(activfunc), finalfunc(finalfunc), costfunc(costfunc)
 {
     top = top;
@@ -115,7 +115,7 @@ void NeuralNetwork::computeCost(vector<float> y)
 }
 
 void NeuralNetwork::updateWeights(Matrix y)
-{//@TODOs
+{//@TODO
     Matrix yhat = get_output();
 }
 

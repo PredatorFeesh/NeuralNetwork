@@ -9,6 +9,11 @@
 
 using std::vector;
 
+enum MatrixInit
+{
+    
+};
+
 class Matrix
 {
     public:
@@ -21,15 +26,22 @@ class Matrix
         {
             m_matrix.reserve(rows);
 
-            std::default_random_engine generator;
-            std::uniform_real_distribution<double> distribution(0.0,0.001);
+            // std::default_random_engine generator;
+            // std::uniform_real_distribution<double> distribution(0.0,0.001);
+
+            // for( unsigned i=0; i < rows; i++ )
+            // {
+            //     vector<float> temp(cols);
+            //     generate(temp.begin(), temp.end(), [&](){return distribution(generator) ;}); // random values
+            //     m_matrix.push_back(temp);
+            // }
 
             for( unsigned i=0; i < rows; i++ )
             {
-                vector<float> temp(cols);
-                generate(temp.begin(), temp.end(), [&](){return distribution(generator) ;}); // random values
+                vector<float> temp(cols, 0.0f);
                 m_matrix.push_back(temp);
             }
+
         }
 
         void print(int rows, int cols);
