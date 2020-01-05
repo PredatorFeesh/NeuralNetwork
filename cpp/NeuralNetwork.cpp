@@ -217,7 +217,7 @@ void NeuralNetwork::forward(Matrix X)
     for(unsigned i = 1; i < net_size; i++)
     { 
         z[i] = a[i-1]*w[i-1];
-        // z[i] += b[i];
+        z[i] += b[i];
         if (activfunc == SIGMOID)
             a[i] = z[i].apply(maths::sigmoid);
 
