@@ -6,15 +6,16 @@ using std::cout;
 using std::endl;
 using std::exp;
 
-NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc)
+NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc, bool init_done)
 : initmet(initmet), activfunc(activfunc), finalfunc(finalfunc), costfunc(costfunc)
 {
     top = topology;
     net_size = top.size()-1;
 
     w.reserve(net_size);
-    nab_w.reserve(net_size);
     b.reserve(net_size);
+    
+    nab_w.reserve(net_size);
     nab_b.reserve(net_size);
 
     z.reserve(net_size+1);
@@ -24,11 +25,12 @@ NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, 
     // We will have topology.size()-1 layers
     for ( unsigned i = 0; i < net_size; i++ )
     {
-        b.push_back( Matrix(1, top[i]) );
-        nab_b.push_back( Matrix(1, top[i]) );
-        w.push_back( Matrix(top[i], top[i+1]) );
 
-        // InstantiateWeights
+        b.push_back( Matrix(1, top[i]) );
+        w.push_back( Matrix(top[i], top[i+1]) );
+        
+        // Instantiate Weights
+        
         switch(initmet)
         {
             case Zero: w[i].initZero(); break;
@@ -36,8 +38,8 @@ NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, 
             case Xavier: w[i].initXavier(top[i], top[i+1]); break;
             case Kaiming: w[i].initKaming(); break;
         }
-
-
+        
+        nab_b.push_back( Matrix(1, top[i]) );
         nab_w.push_back( Matrix(top[i], top[i+1]) );
         
     }
@@ -53,20 +55,119 @@ NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, 
 
 NeuralNetwork::NeuralNetwork(string fromfile)
 {
+    cout << "Starting Neural Network from file init: " << fromfile << endl;
+    fstream file;
+    file.open(fromfile, ios::in);
+
+    if (!file.good()) {cout << "This file is bad! Stopping!" << endl; exit(0);}
+
+    string cur;
+
+    file >> cur;
+    if (cur == "initmet")
+    {
+        file >> cur;
+        initmet = WeightInitMethod( stoi(cur) );
+    } file >> cur;
+    if (cur == "activfunc")
+    {
+        file >> cur;
+        activfunc = Activation( stoi(cur) );
+    } file >> cur;
+    if (cur == "finalfunc")
+    {
+        file >> cur;
+        finalfunc = Final( stoi(cur) );
+    } file >> cur;
+    if (cur == "costfunc")
+    {
+        file >> cur;
+        costfunc = Cost( stoi(cur) );
+    } 
+
+    // Init topology
+    file >> cur;
+    if( cur == "topology" )
+    {
+        file >> cur;
+        while( cur != "weight" )
+        {
+            top.push_back(stoi(cur));
+            file >> cur;
+        }
+    }
+
+    net_size = top.size()-1;
+
+    cout << "Initializing " << cur << endl;
+    //Init weight
+    while( cur != "bias" )
+    {
+        int i, j, rows, cols;
+        file >> j >> rows >> cols;
+        Matrix wtemp(rows, cols);
+
+        cout << "Currently doing weight " << i << " :: Dimensions :: " << rows << "x" << cols << endl;
+        cout << "Num elements in weight: " << rows*cols << endl;
+
+        for( i = 0; i < rows*cols; i++ ) // Yes we overwrite i
+        {
+            file >> cur;
+            wtemp[ (int)(i/cols) ][ (int)(i%cols) ] = stof(cur);
+        }
+        w.push_back(wtemp);
+        nab_w.push_back( Matrix(top[j], top[j+1]) );
+        file >> cur;
+
+        cout << "At end of weights: " << cur << endl;
+    }
+
+    cout << "Initializing bias" << endl;
+
+    //Init bias
+    while( cur != "0" )
+    {
+        int i, j, rows, cols;
+        file >> j >> rows >> cols;
+        Matrix btemp(rows, cols);
+
+        cout << "Currently doing bias " << i << " :: Dimensions :: " << rows << "x" << cols << endl;
+
+        for( i = 0; i < rows*cols; i++ ) // Yes we overwrite i
+        {
+            file >> cur;
+            btemp[ (int)(i/cols) ][ (int)(i%cols) ] = stof(cur);
+        }
+        b.push_back(btemp);
+        nab_b.push_back(Matrix(1, top[j]));
+        file >> cur;
+
+        cout << "At end of bias: " << cur << endl;
+
+    }
+
+    file.close();
+
+    for( size_t layer : top )
+    { 
+        z.push_back( Matrix( 1 , layer) );
+        a.push_back( Matrix( 1 , layer ) );
+    }
+
+    
 
 }
 
 void NeuralNetwork::saveNetwork(string tofile)
 {
     fstream file;
-    string line, word;
 
     file.open(tofile, ios::out);
 
     if( file.is_open() )
     {
         // init params
-        file << "initmeet " << initmet << endl;
+        file << "initmet " << initmet << endl;
         file << "activfunc " << activfunc << endl;
         file << "finalfunc " << finalfunc << endl;
         file << "costfunc " << costfunc << endl;
@@ -91,7 +192,7 @@ void NeuralNetwork::saveNetwork(string tofile)
         // save bias
         for(unsigned i=0; i<net_size; i++)
         {
-            file << "bias " << i << " " <<b[i].rows << " " << b[i].cols;
+            file << "bias " << i << " " <<b[i].rows << " " << b[i].cols << " ";
             for(unsigned j=0; j<b[i].rows; j++)
                 for(unsigned k=0; k<b[i].cols; k++)
                     file << b[i][j][k] << " ";
