@@ -26,11 +26,14 @@ NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, 
     for ( unsigned i = 0; i < net_size; i++ )
     {
 
-        b.push_back( Matrix(1, top[i]) );
-        w.push_back( Matrix(top[i], top[i+1]) );
-        
+        // b.push_back( Matrix(1, top[i+1]) );
+        // w.push_back( Matrix(top[i], top[i+1]) );
+        w.push_back( Matrix(top[i+1], top[i]) );
+        b.push_back( Matrix(top[i+1], 1) );
+        cout << "Making weight: " << top[i+1] << "x" << top[i] << endl;
+
         // Instantiate Weights
-        
+
         switch(initmet)
         {
             case Zero: w[i].initZero(); break;
@@ -38,15 +41,16 @@ NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, 
             case Xavier: w[i].initXavier(top[i], top[i+1]); break;
             case Kaiming: w[i].initKaming(); break;
         }
-        
-        nab_b.push_back( Matrix(1, top[i]) );
-        nab_w.push_back( Matrix(top[i], top[i+1]) );
-        
+
+        // nab_b.push_back( Matrix(1, top[i+1]) );
+        // nab_w.push_back( Matrix(top[i], top[i+1]) );
+        nab_w.push_back( Matrix(top[i+1], top[i]) );
+        nab_b.push_back( Matrix(top[i+1], 1) );
     }
 
     // Now we do the bias, z, and a as random just as initialize
     for( size_t layer : top )
-    { 
+    {
         z.push_back( Matrix( 1 , layer) );
         a.push_back( Matrix( 1 , layer ) );
     }
@@ -207,53 +211,44 @@ void NeuralNetwork::saveNetwork(string tofile)
 
 void NeuralNetwork::forward(Matrix X)
 {
+    // cout << "GOT DATA IN FORWARD PROP: " << endl;
+    // X.print(10, 1);
     // This is for input layer
-    z[0], a[0] = X, X; 
+    z[0] = X;
+    a[0] = X;
 
-    cout << "a[0]" << endl;
-    a[0].print(1,10);
+    // cout << "a[0]" << endl;
+    // a[0].print(10, 1);
+
 
     // This is for hidden layers
     for(unsigned i = 1; i < net_size; i++)
-    { 
-        z[i] = a[i-1]*w[i-1];
-        z[i] += b[i];
+    {
+        // cout << "On layer " << i << endl;
+        z[i] = w[i-1]*a[i-1];
+        z[i] += b[i-1];
         if (activfunc == SIGMOID)
             a[i] = z[i].apply(maths::sigmoid);
 
-        cout << "z["<<i<<"]" << endl;
-        z[i].print(1,10);
-        cout << "a["<<i<<"]" << endl;
-        a[i].print(1,10);
+        // cout << "z["<<i<<"]" << endl;
+        // z[i].print(10,1);
+        // cout << "a["<<i<<"]" << endl;
+        // a[i].print(10,1);
     }
+    cout << "Final Layer " << endl;
 
     // This is for the final layer
-    z[net_size] = a[net_size-1]*w[net_size-1];
-    // z[net_size] += b[net_size];
+    z[net_size] = w[net_size-1] * a[net_size-1];
+    z[net_size] += b[net_size-1];
+
     if ( finalfunc == SOFTMAX )
-    { 
+    {
         a[net_size] = z[net_size].apply(maths::expon) / maths::expsum( z[net_size].m_matrix[0] );
     }
     else if ( finalfunc == SIGMOIDAL )
     {
         a[net_size] = z[net_size].apply(maths::sigmoid);
     }
-
-    cout << "Debug::: SOFTMAX V SIGMOIDAL" << endl;
-    cout << "Original: " << endl;
-    z[net_size].print(1,10);
-    cout << "SOFTMAX: " << endl;
-    (z[net_size].apply(maths::expon) / maths::expsum(z[net_size].m_matrix[0])).print(1,10);
-    cout << "SIGMOIDAL: " << endl;
-    z[net_size].apply(maths::sigmoid).print(1,10);
-    cout << "END-DEBUG" << endl;
-}
-
-void NeuralNetwork::forward(vector<float> X)
-{
-    Matrix x(1, X.size());
-    x.m_matrix[0] = X;
-    forward(x);
 }
 
 void NeuralNetwork::computeCost(Matrix y)
@@ -262,24 +257,103 @@ void NeuralNetwork::computeCost(Matrix y)
     Matrix yhat = get_output();
     if(costfunc == CrossEntropy)
     {
-        for(unsigned i=0; i < y[0].size(); i++)
+        for(unsigned i=0; i < y.rows; i++)
         {
-            cost += ( y[0][i] * log2( yhat[0][i] ) );
+            cost += ( y[i][0] * log2( yhat[i][0] ) );
         }
         cost *= -1;
     }
-    cout << "Cost: " << cost << endl;
+
+    m_recentAverageError = (m_recentAverageError * m_smoothingFactor + cost) / (m_recentAverageError + 1.0f);
+
+    // cout << endl;
+    // cout << "Cost: " << cost << endl;
+    // cout << "Average Error: " << m_recentAverageError << endl;
+    // cout << endl;
+    if (cost != cost)
+    {
+        cout << "Got cost of NAN!" << endl;
+        saveNetwork("debug.txt");
+        exit(1);
+    }
 }
 
-void NeuralNetwork::computeCost(vector<float> y)
-{
-    Matrix m(1, y.size());
-    m[0] = y;
-    computeCost(m);
-}
 
-void NeuralNetwork::updateWeights(Matrix y)
+
+void NeuralNetwork::updateWeights(Matrix y, float learn_rate)
 {//@TODO
     Matrix yhat = get_output();
+
+    // Loss deriv
+    // Matrix dl( 1, a[net_size][1].size() );
+
+    Matrix dcost(a[net_size].rows , a[net_size].cols);
+    // Last Layer
+    // cout << "Starting last layer backprop" << endl;
+    if(costfunc == CrossEntropy && finalfunc == SOFTMAX) // Just for now, since this is common and project needs to get sped up. Fixed in later branch
+    {
+        // dl = yhat.apply( maths::inverse );
+        dcost = (a[net_size] - y); // 1x10
+    }
+
+    nab_w[net_size-1] = a[net_size-1] * dcost.tranpose()  ; //  500x10 :: 500x1 * 1x10
+    nab_b[net_size-1] = dcost;
+
+    // cout << "Updating weight" << endl;
+    // Update weights
+    w[net_size-1] -= (nab_w[net_size-1] * learn_rate).tranpose();
+    b[net_size-1] -= nab_b[net_size-1];
+
+    // cout << "Starting to update hidden" << endl;
+    // Hidden Layers
+    for( int i = net_size-2; i >= 0; i-- )
+    {
+        // cout << "On hidden layer " << i << endl;
+        dcost = ( w[i+1].tranpose() * dcost );
+        if(activfunc == SIGMOID)
+        {
+            dcost = z[i+1].apply(maths::sigmoid_prime).hadmard(dcost);
+        }
+
+        nab_w[i] = dcost * a[i].tranpose();
+        nab_b[i] = dcost;
+
+        // Update weights
+        w[i] -= nab_w[i] * learn_rate;
+        b[i] -= nab_b[i];
+    }
+
+}
+
+void NeuralNetwork::train(Cifar::Cifar data, unsigned int num_iters, float learn_rate)
+{
+    for(unsigned i=0; i<num_iters; i++)
+    {
+        auto batch = data.get_random_train();
+
+        Matrix X = Matrix(batch[0] );
+        Matrix y = Matrix(batch[1]);
+
+        // cout << "DATA RECIEVED FROM CIFAR " << endl;
+        // X.print(10,1);
+        // y.print(10,1);
+
+        forward(X);
+        computeCost(y);
+        updateWeights( y , learn_rate );
+
+        cout << endl;
+        cout << "COST: " << cost << endl;
+        cout << "AVERAGE ERROR: " << m_recentAverageError << endl;
+        cout << endl;
+
+        if( i == 100 )
+        {
+            cout << "REACHED THE " << i << "TH ITER" << endl;
+            saveNetwork("debug.txt");
+            exit(1);
+        }
+
+    }
 }
 

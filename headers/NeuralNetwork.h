@@ -3,6 +3,7 @@
 
 #include "../headers/Matrix.h"
 #include "../headers/mathHelper.h"
+#include "../headers/createCifar.h"
 #include <string.h>
 #include <fstream>
 #include <iostream>
@@ -70,27 +71,27 @@ class NeuralNetwork
         // This is the current cost of our system (after a forward pass)
         float cost = 0.0f;
 
+        float m_recentAverageError;
+        float m_smoothingFactor = 20; // Over 20 last seen
 
         // This is the topolgy of our neural network (how layers are constructed)
         vector<size_t> top;
         size_t net_size;
 
         NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, Activation activfunc, Final finalfunc, Cost costfunc, bool init_done = false);
-        
+
         NeuralNetwork(string fromfile);
         void saveNetwork(string tofile);
 
         Matrix get_output(){ return a[net_size]; };
 
         void forward(Matrix X); // input
-        void forward(vector<float> X); // input
-    
+
         void computeCost(Matrix y); // This assumes we already forward propogated - calculated based on that
-        void computeCost(vector<float> y);
         float getCost(){ return cost; }
 
-        void updateWeights(Matrix y);
-
+        void updateWeights(Matrix y, float learn_rate);
+        void train(Cifar::Cifar data, unsigned int num_iters, float learn_rate);
 
 
 };

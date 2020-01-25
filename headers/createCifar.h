@@ -8,12 +8,13 @@
 #include <random>
 #include <sstream>
 #include <algorithm>
+#include<iterator>
 
 
 namespace Cifar
 {
 
-    using namespace std;  
+    using namespace std;
 
 
     enum ScaleType
@@ -40,13 +41,32 @@ namespace Cifar
         int num_train = cifarNumImages;
         int num_test = 0;
 
-        unsigned long size = 32*32*3;
+        unsigned size = 32*32*3;
 
-        Cifar(int num)
+        Cifar(int num, float train_test_ratio)
         {
             set_cifar(num);
+            train_test_seperate(train_test_ratio);
         };
         ~Cifar(){};
+
+        void train_test_seperate(float train_test_ratio)
+        {
+
+            num_train = cifarNumImages * train_test_ratio;
+            num_test = cifarNumImages - num_train;
+
+            cout << "Num train: " << num_train << endl;
+            cout << "Num test: " << num_test << endl;
+
+            copy(X_train.begin() + num_train + 1, X_train.end(), back_inserter(X_test) );
+            copy(y_train.begin() + num_train + 1, y_train.end(), back_inserter(y_test) );
+
+            X_train.erase(X_train.begin()+ num_train + 1 , X_train.end());
+            y_train.erase(y_train.begin()+ num_train + 1 , y_train.end());
+
+
+        }
 
         void set_cifar(int num) // X, y
         {
@@ -55,16 +75,16 @@ namespace Cifar
             // Y -> also stacked on top of one another
 
             ifstream cifarfile ("cifar_data/data_batch_"+to_string(num)+".bin",ios::binary);
-            
+
             if (!cifarfile.good()) { cout << "File is not good!" << endl; exit(1); } // Check file good
 
             cout << endl;
             cout << "Making cifar" << endl;
-            for (int w = 0; w < cifarNumImages; w++) 
-            {   
-                    
+            for (int w = 0; w < cifarNumImages; w++)
+            {
+
                     y_train.push_back( static_cast<uint8_t>(cifarfile.get()));     //binaryToDecimal()
-                    for (unsigned i = 0; i < size; ++i) 
+                    for (unsigned i = 0; i < size; ++i)
                     {
                         X_train.push_back( static_cast<float>(static_cast<uint8_t>(cifarfile.get())));  // binaryToDecimal()
                     }
@@ -75,15 +95,15 @@ namespace Cifar
             // return vector<vector<int>>{X_train, y_train};
 
         }
-	
+
         void preprocess(ScaleType scale)
         {
             // @param scale: specifies the type of scale to apply
             // @return none: updates the values in the batches (train and test)
             preprocessed = true;
             cout << "Starting preprocessing..." << endl;
-            
-            if( scale == MINMAX )	    
+
+            if( scale == MINMAX )
             {
                 // const auto [test_min, test_max] = minmax_element( X_test.begin(), X_test.end() );
                 // const auto [train_min, train_max] = minmax_element( X_train.begin(), X_train.end());
@@ -93,13 +113,13 @@ namespace Cifar
 
                 // Max value is 255 and min is 0, so we could just substitute that
 
-                for_each( X_train.begin(), X_train.end(), 
-                    [&](float& point){ point = (point - 0) / (255-0); } ); // scale train 
-                
-                for_each( X_test.begin(), X_test.end(), 
+                for_each( X_train.begin(), X_train.end(),
+                    [&](float& point){ point = (point - 0) / (255-0); } ); // scale train
+
+                for_each( X_test.begin(), X_test.end(),
                     [&](float& point){ point = (point - 0) / (255-0); } ); // scale test
 
-            } 
+            }
             else if (scale == STANDARD)
             {
 
@@ -111,11 +131,11 @@ namespace Cifar
                     stop_spot = (image_number+1)*size-1;
                     double mean_train = std::accumulate(X_train.begin() + start_spot, X_train.begin() + stop_spot, 0.0) / (stop_spot - start_spot);
                     double accum=0.0;
-                    for_each(X_train.begin() + start_spot, X_train.begin() + stop_spot, 
+                    for_each(X_train.begin() + start_spot, X_train.begin() + stop_spot,
                         [&](const double d) {accum += (d - mean_train) * (d - mean_train); });
                     double stdev_train = sqrt(accum / (size-1)); // Get the standard deviation
 
-                    for_each( X_train.begin() + start_spot, X_train.begin() + stop_spot, 
+                    for_each( X_train.begin() + start_spot, X_train.begin() + stop_spot,
                         [&](float& point){ point = (point - mean_train) / stdev_train; } ); // update train
 
                 }
@@ -126,11 +146,11 @@ namespace Cifar
                     stop_spot = (num_train+1)*size-1;
                     double mean_test = std::accumulate(X_test.begin() + start_spot, X_test.begin() + stop_spot, 0.0) / (stop_spot - start_spot);
                     double accum=0.0;
-                    for_each(X_test.begin() + start_spot, X_test.begin() + stop_spot, 
+                    for_each(X_test.begin() + start_spot, X_test.begin() + stop_spot,
                         [&](const double d) {accum += (d - mean_test) * (d - mean_test); });
                     double stdev_test = sqrt(accum / (size-1)); // Get the standard deviation
 
-                    for_each( X_test.begin() + start_spot, X_test.begin() + stop_spot, 
+                    for_each( X_test.begin() + start_spot, X_test.begin() + stop_spot,
                         [&](float& point){ point = (point - mean_test) / stdev_test; } ); // update test
                 }
 
@@ -143,7 +163,7 @@ namespace Cifar
             for( float val : vec )
                 cout << val << " ";
             cout << endl;
-        } 
+        }
 
 
         vector<float> getonehot(int label, size_t max_labels)
@@ -155,19 +175,18 @@ namespace Cifar
                     onehot[i]=1;
                 else
                     onehot[i]=0;
-            
             return onehot;
         }
 
         vector<float> get_train_onehot(int image_number)
         {
             return getonehot(y_train[image_number], 10);
-        } 
+        }
 
         vector<float> get_test_onehot(int image_number)
         {
             return getonehot(y_test[image_number], 10);
-        } 
+        }
 
         vector<float> get_train_data(int image_number)
         {
@@ -177,7 +196,7 @@ namespace Cifar
                 data[i - start_spot ] = X_train[i];
             return data;
         }
-        
+
         vector<float> get_test_data(int image_number)
         {
             vector<float> data(size);
@@ -188,35 +207,36 @@ namespace Cifar
         }
 
 
-
-        vector<vector<float>> get_random_train(int type = 1)
+        vector<vector<float>> get_random_train( int type = 1)
         { // 0 = regular; 1 = onehot
 
-            int randindx = rand() % (cifarNumImages);
+            int randindx = 0;
+
+            randindx = rand() % (num_train);
 
             if ( type == 1 )
-                return vector<vector<float>> { get_train_data(randindx), get_train_onehot(randindx) };
+                return (vector<vector<float>> { get_train_data(randindx), get_train_onehot(randindx) });
             else if ( type == 0 )
-                return vector<vector<float>> { get_train_data(randindx), vector<float>{y_train[randindx]} };
+                return (vector<vector<float>> { get_train_data(randindx), vector<float>{y_train[randindx]} });
+
         }
 
-        vector<vector<float>> get_random_test(int type = 1)
+        vector<vector<float>> get_random_test( int type = 1)
         { // 0 = regular; 1 = onehot
 
-            int randindx = rand() % (cifarNumImages);
+            int randindx = 0;
+
+            randindx = rand() % (num_test);
 
             if ( type == 1 )
-                return vector<vector<float>> { get_test_data(randindx), get_test_onehot(randindx) };
+                return (vector<vector<float>> { get_test_data(randindx), get_test_onehot(randindx) });
             else if ( type == 0 )
-                return vector<vector<float>> { get_test_data(randindx), vector<float>{y_train[randindx]} };
+                return (vector<vector<float>> { get_test_data(randindx), vector<float>{y_train[randindx]} });
         }
 
     };
 
 }
-
-
-
 
 
 

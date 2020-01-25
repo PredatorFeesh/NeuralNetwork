@@ -66,16 +66,16 @@ Matrix Matrix::operator/(float a)
     for(unsigned i=0; i<rows; i++)
         for(unsigned j=0; j<cols; j++)
             out.m_matrix[i][j] = m_matrix[i][j]/a;
-    
+
     return out;
 
 }
 
 Matrix Matrix::operator+(Matrix m)
 {
-    cout << "Adding" << endl;
-    cout << rows << " " << cols << endl;
-    cout << m.rows << " " << m.cols << endl;
+    // cout << "Adding" << endl;
+    // cout << rows << " " << cols << endl;
+    // cout << m.rows << " " << m.cols << endl;
     if ( m.rows != rows || m.cols != cols ){ cout << "Parameters don't match! Can't add!"; exit(1); }
 
     Matrix out(rows, cols);
@@ -92,16 +92,16 @@ Matrix Matrix::operator+(Matrix m)
         std::transform( m_matrix[i].begin(), m_matrix[i].end(), m.m_matrix[i].begin(), out.m_matrix[i].begin(), std::plus<float>() );
     }
     cout << "Done adding!" << endl;
-    
+
     return out; // We get an error on return? Why?
 }
 
 
 Matrix Matrix::operator*(Matrix m)
 {
-    cout << "Multiplying" << endl;
-    cout << rows << " " << cols << endl;
-    cout << m.rows << " " << m.cols << endl;
+    // cout << "Multiplying" << endl;
+    // cout << rows << " " << cols << endl;
+    // cout << m.rows << " " << m.cols << endl;
     if ( cols != m.rows ){ cout << "Rows != Col! Can't multiply!"; exit(1); }
 
     Matrix output(rows, m.cols);
@@ -134,4 +134,50 @@ Matrix Matrix::operator*(Matrix m)
 void Matrix::operator+=(Matrix m)
 {
     *this = *this + m;
+}
+void Matrix::operator-=(Matrix m)
+{
+    *this = *this - m;
+}
+
+Matrix Matrix::operator-(Matrix m)
+{
+    if ( rows != m.rows || cols != m.cols){ cout << "Cant sub! Rows and Cols noteq :: " << rows<<"x"<<cols<<" - "<<m.rows<<"x"<<m.cols<< endl; exit(1); }
+    Matrix temp(rows, cols);
+    return *this + (m * -1);
+}
+
+Matrix Matrix::operator*(float x)
+{
+    Matrix temp(rows, cols);
+    for(unsigned i = 0; i < rows; i++)
+        for(unsigned j = 0; j < cols; j++)
+            temp[i][j] = m_matrix[i][j] * x;
+    return temp;
+}
+Matrix Matrix::hadmard(Matrix m)
+{
+    if ( rows != m.rows || cols != m.cols ) { cout << "Hadmard error! : " << rows<<"x"<<cols<<" = "<<m.rows<<"x"<<m.cols << endl; exit(1); }
+    Matrix temp(rows, cols);
+    for(unsigned i = 0; i < rows; i++)
+        for(unsigned j = 0; j < cols; j++)
+            temp[i][j] = m_matrix[i][j] * m.m_matrix[i][j];
+    return temp;
+}
+
+void Matrix::operator=(Matrix m)
+{
+    // if (rows != m.rows || cols != m.cols) {cout << "Cant equate! Rows and Cols noteq :: " << rows<<"x"<<cols<<" = "<<m.rows<<"x"<<m.cols<< endl; exit(1);};
+    rows = m.rows;
+    cols = m.cols;
+    m_matrix = m.m_matrix;
+    // m_matrix.reserve(rows);
+    // for(unsigned i = 0; i < rows; i++)
+    // {
+    //     // m_matrix[i].reserve(cols);
+    //     for(unsigned j = 0; j < cols; j++)
+    //         {
+    //             m_matrix[i][j] = m.m_matrix[i][j];
+    //         }
+    // }
 }

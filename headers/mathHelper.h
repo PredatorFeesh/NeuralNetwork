@@ -18,7 +18,7 @@ namespace maths
 
     inline float sigmoid_prime(float x)
     {
-        return ( (exp(-x))/( ( 1.0f + exp(-x) ) * (1.0f + exp(-x)) )  );
+        return ( x * (1.0f - x)  );
     }
 
     inline float relu(float x)
@@ -27,7 +27,7 @@ namespace maths
     }
 
     inline float expsum(vector<float> x)
-    { 
+    {
         // @TODO: TEST
         float sum = 0;
         for_each(x.begin(), x.end(), [&sum](float n){
@@ -39,6 +39,16 @@ namespace maths
     inline float expon(float x)
     {
         return std::exp(x);
+    }
+
+    inline float inverse(float x)
+    {
+        return 1.0f / x;
+    }
+
+    inline float softmax_prime(int i, int j, const Matrix p) // from j, to i
+    { // This matrix is 1 x layer
+        return (i == j) ? p[0][i] * p[0][j] : p[0][i] * (1 - p[0][j]);
     }
 
 
