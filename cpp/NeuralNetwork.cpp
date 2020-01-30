@@ -243,7 +243,7 @@ void NeuralNetwork::forward(Matrix X)
 
     if ( finalfunc == SOFTMAX )
     {
-        a[net_size] = z[net_size].apply(maths::expon) / maths::expsum( z[net_size].m_matrix[0] );
+        a[net_size] = z[net_size].apply(maths::expon) / maths::expsum( z[net_size].tranpose().m_matrix[0] );
     }
     else if ( finalfunc == SIGMOIDAL )
     {
@@ -255,6 +255,12 @@ void NeuralNetwork::computeCost(Matrix y)
 {
     cost = 0;
     Matrix yhat = get_output();
+
+    cout << "Correct choice: " << endl;
+    y.print(y.rows, y.cols);
+    cout << "Gotten choice: " << endl;
+    yhat.print(yhat.rows, yhat.cols);
+
     if(costfunc == CrossEntropy)
     {
         for(unsigned i=0; i < y.rows; i++)
@@ -287,7 +293,7 @@ void NeuralNetwork::updateWeights(Matrix y, float learn_rate)
     // Loss deriv
     // Matrix dl( 1, a[net_size][1].size() );
 
-    Matrix dcost(a[net_size].rows , a[net_size].cols);
+    Matrix dcost(0,0);
     // Last Layer
     // cout << "Starting last layer backprop" << endl;
     if(costfunc == CrossEntropy && finalfunc == SOFTMAX) // Just for now, since this is common and project needs to get sped up. Fixed in later branch
@@ -296,7 +302,7 @@ void NeuralNetwork::updateWeights(Matrix y, float learn_rate)
         dcost = (a[net_size] - y); // 1x10
     }
 
-    nab_w[net_size-1] = a[net_size-1] * dcost.tranpose()  ; //  500x10 :: 500x1 * 1x10
+    nab_w[net_size-1] = a[net_size-1] * dcost.tranpose()  ;
     nab_b[net_size-1] = dcost;
 
     // cout << "Updating weight" << endl;
@@ -309,10 +315,9 @@ void NeuralNetwork::updateWeights(Matrix y, float learn_rate)
     for( int i = net_size-2; i >= 0; i-- )
     {
         // cout << "On hidden layer " << i << endl;
-        dcost = ( w[i+1].tranpose() * dcost );
         if(activfunc == SIGMOID)
         {
-            dcost = z[i+1].apply(maths::sigmoid_prime).hadmard(dcost);
+            dcost = z[i].apply(maths::sigmoid_prime).hadmard( w[i+1].tranpose() * dcost );
         }
 
         nab_w[i] = dcost * a[i].tranpose();

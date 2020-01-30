@@ -1,16 +1,32 @@
 #include "headers/createCifar.h"
 #include "headers/NeuralNetwork.h"
 #include "headers/Matrix.h"
+#include <csignal>
+
+NeuralNetwork *net;
+
+void signal_handler( int signum )
+{
+    if ( signum == 2)
+    {
+        cout << "Got signal to stop! Saving network." << endl;
+        (*net).saveNetwork("cancelSignal.txt");
+        cout << "Network saved! Exiting." << endl;
+    }
+    exit(signum);
+}
 
 int main()
 {
-    Cifar::Cifar data(1);
+    signal(SIGINT, signal_handler);
+
+    Cifar::Cifar data(1, 0.5f);
     data.preprocess(Cifar::MINMAX);
 
-    NeuralNetwork net(vector<size_t>{data.size,2000, 2000, 100, 50, 10}, Xavier, SIGMOID, SOFTMAX, CrossEntropy);
+    net = new NeuralNetwork(vector<size_t>{data.size,2000, 2000, 100, 50, 10}, Xavier, SIGMOID, SOFTMAX, CrossEntropy);
     // NeuralNetwork net("network.txt");
 
-    net.train(data, 200, 0.005);
+    (*net).train(data, 200, 0.00005);
 
     // cout << "Starting to forward propogate" << endl;
 

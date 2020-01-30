@@ -218,7 +218,11 @@ namespace Cifar
                 return (vector<vector<float>> { get_train_data(randindx), get_train_onehot(randindx) });
             else if ( type == 0 )
                 return (vector<vector<float>> { get_train_data(randindx), vector<float>{y_train[randindx]} });
-
+            else
+            {
+                cout << "Trying to get type" << type << ": NOT POSSIBLE." << endl;
+                return vector<vector<float>>{};
+            }
         }
 
         vector<vector<float>> get_random_test( int type = 1)
@@ -232,6 +236,11 @@ namespace Cifar
                 return (vector<vector<float>> { get_test_data(randindx), get_test_onehot(randindx) });
             else if ( type == 0 )
                 return (vector<vector<float>> { get_test_data(randindx), vector<float>{y_train[randindx]} });
+            else
+            {
+                cout << "Trying to get type" << type << ": NOT POSSIBLE." << endl;
+                return vector<vector<float>>{};
+            }
         }
 
     };
