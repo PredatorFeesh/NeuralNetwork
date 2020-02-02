@@ -26,7 +26,6 @@ class Matrix
         size_t rows;
         size_t cols;
 
-    // public:
         Matrix(int rows, int cols) : rows(rows), cols(cols)
         {
             m_matrix.reserve(rows);
@@ -64,7 +63,7 @@ class Matrix
 
         void print(int rows, int cols);
 
-        Matrix tranpose();
+        Matrix transpose();
 
         Matrix apply( std::function<float (float)> activation  );
         Matrix apply( std::function<float (float, float)> activation, float param );

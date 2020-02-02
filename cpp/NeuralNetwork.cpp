@@ -14,7 +14,7 @@ NeuralNetwork::NeuralNetwork(vector<size_t> topology, WeightInitMethod initmet, 
 
     w.reserve(net_size);
     b.reserve(net_size);
-    
+
     nab_w.reserve(net_size);
     nab_b.reserve(net_size);
 
@@ -314,18 +314,24 @@ void NeuralNetwork::updateWeights(Matrix y, float learn_rate)
     // Hidden Layers
     for( int i = net_size-2; i >= 0; i-- )
     {
-        // cout << "On hidden layer " << i << endl;
+        cout << "On hidden layer " << i << endl;
         if(activfunc == SIGMOID)
         {
-            dcost = z[i].apply(maths::sigmoid_prime).hadmard( w[i+1].tranpose() * dcost );
+            cout << "Z: " << z[i+1].rows << "x" << z[i+1].cols << endl;
+            cout << "Dcost: " << dcost.rows << "x" << dcost.cols << endl;
+            cout << "W: " << w[i+1].rows << "x" << w[i+2].cols << endl;
+            dcost = z[i+1].apply(maths::sigmoid_prime).hadmard( w[i+1].tranpose() * dcost );
         }
-
+        cout << "Computed dcost" << endl;
         nab_w[i] = dcost * a[i].tranpose();
         nab_b[i] = dcost;
+
+        cout << "Updated deltas" << endl;
 
         // Update weights
         w[i] -= nab_w[i] * learn_rate;
         b[i] -= nab_b[i];
+        cout << "Updated weights" << endl;
     }
 
 }

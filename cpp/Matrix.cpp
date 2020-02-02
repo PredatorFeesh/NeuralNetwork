@@ -41,7 +41,7 @@ void Matrix::print(int rows, int cols)
     }
 }
 
-Matrix Matrix::tranpose()
+Matrix Matrix::transpose()
 {
     Matrix output(cols, rows);
     for( unsigned i = 0; i < rows; i++ )

@@ -8,8 +8,7 @@
 #include <random>
 #include <sstream>
 #include <algorithm>
-#include<iterator>
-
+#include <iterator>
 
 namespace Cifar
 {
