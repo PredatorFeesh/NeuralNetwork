@@ -243,12 +243,18 @@ void NeuralNetwork::forward(Matrix X)
 
     if ( finalfunc == SOFTMAX )
     {
-        a[net_size] = z[net_size].apply(maths::expon) / maths::expsum( z[net_size].tranpose().m_matrix[0] );
+        a[net_size] = z[net_size].apply(maths::expon) / maths::expsum( z[net_size].transpose().m_matrix[0] );
     }
     else if ( finalfunc == SIGMOIDAL )
     {
         a[net_size] = z[net_size].apply(maths::sigmoid);
     }
+
+    cout << "The input, second, and final layers" << endl;
+    a[0].print(10,1);
+    a[1].print(10,1);
+    a[net_size].print(10,1);
+
 }
 
 void NeuralNetwork::computeCost(Matrix y)
@@ -302,12 +308,12 @@ void NeuralNetwork::updateWeights(Matrix y, float learn_rate)
         dcost = (a[net_size] - y); // 1x10
     }
 
-    nab_w[net_size-1] = a[net_size-1] * dcost.tranpose()  ;
+    nab_w[net_size-1] = a[net_size-1] * dcost.transpose()  ;
     nab_b[net_size-1] = dcost;
 
     // cout << "Updating weight" << endl;
     // Update weights
-    w[net_size-1] -= (nab_w[net_size-1] * learn_rate).tranpose();
+    w[net_size-1] -= (nab_w[net_size-1] * learn_rate).transpose();
     b[net_size-1] -= nab_b[net_size-1];
 
     // cout << "Starting to update hidden" << endl;
@@ -320,10 +326,10 @@ void NeuralNetwork::updateWeights(Matrix y, float learn_rate)
             cout << "Z: " << z[i+1].rows << "x" << z[i+1].cols << endl;
             cout << "Dcost: " << dcost.rows << "x" << dcost.cols << endl;
             cout << "W: " << w[i+1].rows << "x" << w[i+2].cols << endl;
-            dcost = z[i+1].apply(maths::sigmoid_prime).hadmard( w[i+1].tranpose() * dcost );
+            dcost = z[i+1].apply(maths::sigmoid_prime).hadmard( w[i+1].transpose() * dcost );
         }
         cout << "Computed dcost" << endl;
-        nab_w[i] = dcost * a[i].tranpose();
+        nab_w[i] = dcost * a[i].transpose();
         nab_b[i] = dcost;
 
         cout << "Updated deltas" << endl;
