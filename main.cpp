@@ -21,9 +21,9 @@ int main()
     signal(SIGINT, signal_handler);
 
     Cifar::Cifar data(1, 0.5f);
-    data.preprocess(Cifar::MINMAX);
+    data.preprocess(Cifar::STANDARD);
 
-    net = new NeuralNetwork(vector<size_t>{data.size,2000, 2000, 100, 50, 10}, Xavier, SIGMOID, SOFTMAX, CrossEntropy);
+    net = new NeuralNetwork(vector<size_t>{data.img_size,2000, 2000, 100, 50, 10}, Xavier, SIGMOID, SOFTMAX, CrossEntropy);
     // NeuralNetwork net("network.txt");
 
     (*net).train(data, 200, 0.00005);

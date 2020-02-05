@@ -217,8 +217,8 @@ void NeuralNetwork::forward(Matrix X)
     z[0] = X;
     a[0] = X;
 
-    // cout << "a[0]" << endl;
-    // a[0].print(10, 1);
+    cout << "a[0] :: " << a[0].rows << "x" << a[0].cols << endl;
+    a[0].print(10 , a[0].cols);
 
 
     // This is for hidden layers
@@ -250,9 +250,9 @@ void NeuralNetwork::forward(Matrix X)
         a[net_size] = z[net_size].apply(maths::sigmoid);
     }
 
-    cout << "The input, second, and final layers" << endl;
-    a[0].print(10,1);
+    cout << "a[1]" << a[1].rows << "x" << a[1].cols << endl;
     a[1].print(10,1);
+    cout << "Final Layer Output" << a[net_size].rows << "x" << a[net_size].cols << endl;
     a[net_size].print(10,1);
 
 }
@@ -348,12 +348,12 @@ void NeuralNetwork::train(Cifar::Cifar data, unsigned int num_iters, float learn
     {
         auto batch = data.get_random_train();
 
-        Matrix X = Matrix(batch[0] );
+        Matrix X = Matrix(batch[0]);
         Matrix y = Matrix(batch[1]);
 
-        // cout << "DATA RECIEVED FROM CIFAR " << endl;
-        // X.print(10,1);
-        // y.print(10,1);
+        cout << "DATA RECIEVED FROM CIFAR " << endl;
+        X.print(10,1);
+        y.print(10,1);
 
         forward(X);
         computeCost(y);
