@@ -133,7 +133,7 @@ namespace Cifar
                     mean = std::accumulate(X.begin() + start_spot, X.begin() + stop_spot, 0.0) / (stop_spot - start_spot);
                     accum=0.0;
                     for_each(X.begin() + start_spot, X.begin() + stop_spot,
-                        [&](const double d) {accum += (d - mean) * (d - mean_test); });
+                        [&](const double d) {accum += (d - mean) * (d - mean); });
                     double std_dev = sqrt(accum / (img_size-1)); // Get the standard deviation
 
                     for_each( X.begin() + start_spot, X.begin() + stop_spot,
