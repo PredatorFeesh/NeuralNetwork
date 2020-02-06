@@ -77,11 +77,14 @@ namespace Cifar
 
             cout << endl;
             cout << "Making cifar" << endl;
+
+            unsigned i; // Iterable  ::  declaring outside loop to save mem
+
             while (!cifarfile.eof())
             {
 
-                    y.push_back( static_cast<uint8_t>(cifarfile.get()));     //binaryToDecimal()
-                    for (unsigned i = 0; i < img_size; ++i)
+                    y.push_back( static_cast<uint8_t>(cifarfile.get()));
+                    for (i = 0; i < img_size; ++i)
                     {
                         X.push_back( static_cast<float>(static_cast<uint8_t>(cifarfile.get())));  // binaryToDecimal()
                     }
@@ -89,8 +92,6 @@ namespace Cifar
             }
 
             cout << "Done making cifar" << endl;
-
-            // return vector<vector<int>>{X, y};
 
         }
 
@@ -126,10 +127,10 @@ namespace Cifar
 
                 double mean, accum, std_dev = 0.0f;
 
-                for (size_t image_number = 0; image_number < num_test; image_number++)
+                for (size_t image_number = 0; image_number < cifarNumImages; image_number++)
                 {
-                    start_spot = num_train*img_size;
-                    stop_spot = (num_train+1)*img_size-1;
+                    start_spot = image_number*img_size;
+                    stop_spot = (image_number+1)*img_size-1;
                     mean = std::accumulate(X.begin() + start_spot, X.begin() + stop_spot, 0.0) / (stop_spot - start_spot);
                     accum=0.0;
                     for_each(X.begin() + start_spot, X.begin() + stop_spot,
@@ -174,7 +175,7 @@ namespace Cifar
             return getonehot(y[image_number], 10);
         }
 
-        vector<float> get_train_data(int image_number)
+        vector<float> get_data(int image_number)
         {
             vector<float> data(img_size);
             int start_spot = image_number*img_size;
@@ -183,14 +184,6 @@ namespace Cifar
             return data;
         }
 
-        vector<float> get_test_data(int image_number)
-        {
-            vector<float> data(img_size);
-            int start_spot = (num_train + image_number)*img_size;
-            for(int i = start_spot; i < (image_number+1)*img_size; i++)
-                data[i - start_spot ] = X[i];
-            return data;
-        }
 
 
         vector<vector<float>> get_random_train( int type = 1)
@@ -201,9 +194,9 @@ namespace Cifar
             randindx = rand() % (num_train);
 
             if ( type == 1 )
-                return (vector<vector<float>> { get_train_data(randindx), get_train_onehot(randindx) });
+                return (vector<vector<float>> { get_data(randindx), get_train_onehot(randindx) });
             else if ( type == 0 )
-                return (vector<vector<float>> { get_train_data(randindx), vector<float>{y[randindx]} });
+                return (vector<vector<float>> { get_data(randindx), vector<float>{y[randindx]} });
             else
             {
                 cout << "Trying to get type" << type << ": NOT POSSIBLE." << endl;
@@ -221,9 +214,9 @@ namespace Cifar
             randindx += num_train; // Since we have an array structured [train, test]
 
             if ( type == 1 )
-                return (vector<vector<float>> { get_test_data(randindx), get_test_onehot(randindx) });
+                return (vector<vector<float>> { get_data(randindx), get_test_onehot(randindx) });
             else if ( type == 0 )
-                return (vector<vector<float>> { get_test_data(randindx), vector<float>{y[randindx]} });
+                return (vector<vector<float>> { get_data(randindx), vector<float>{y[randindx]} });
             else
             {
                 cout << "Trying to get type" << type << ": NOT POSSIBLE." << endl;

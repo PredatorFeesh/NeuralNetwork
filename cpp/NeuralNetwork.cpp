@@ -353,6 +353,7 @@ void NeuralNetwork::train(Cifar::Cifar data, unsigned int num_iters, float learn
 
         cout << "DATA RECIEVED FROM CIFAR " << endl;
         X.print(10,1);
+        cout << "Y FROM CIFAR" << endl;
         y.print(10,1);
 
         forward(X);
@@ -364,7 +365,7 @@ void NeuralNetwork::train(Cifar::Cifar data, unsigned int num_iters, float learn
         cout << "AVERAGE ERROR: " << m_recentAverageError << endl;
         cout << endl;
 
-        if( i == 100 )
+        if( i == 1000 )
         {
             cout << "REACHED THE " << i << "TH ITER" << endl;
             saveNetwork("debug.txt");
