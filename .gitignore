@@ -1,7 +1,6 @@
 .DS_store
 .vscode
-a.out
-a.out.*
+a.*
 a
 debug.txt
 cancelSignal.txt
