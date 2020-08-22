@@ -12,8 +12,8 @@ CPPDIR=cpp
 install: $(MAIN)
 	$(CXX) $(MAIN) $(CPPDIR)/*.cpp $(FLAGS) $(OUTPUT)
 
-make_test: $(MAIN)
-	$(CXX) mat_test.cpp cpp/Matrix.cpp $(FLAGS) $(OUTPUT)
+test: $(MAIN)
+	$(CXX) tests.cpp cpp/* tests/* $(FLAGS) $(OUTPUT)
 
 debug: $(MAIN)
 	$(CXX) $(MAIN) $(CPPDIR)/*.cpp $(FLAGS) $(OUTPUT) $(DEBUG)
